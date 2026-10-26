@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pilih Gejala - Sistem Pakar CBR</title>
+<meta name="description" content="Centang gejala jantung dan lambung yang Anda alami.">
+<meta name="theme-color" content="#0d5c61">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='10' fill='%230d5c61'/%3E%3Cpath d='M5 19h6l3-7 5 14 4-10 2 3h6' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="header"></header>
+<main>
+<ol id="stepper"></ol>
+<div class="page-head">
+  <h1>Pilih gejala yang dialami</h1>
+  <p>Centang semua gejala yang Anda rasakan. Jenis penyakit ditentukan otomatis oleh sistem.</p>
+</div>
+<form id="f" novalidate>
+  <section class="card group jantung" aria-labelledby="t-j">
+    <header><h2 id="t-j">Gejala jantung</h2><span class="count" id="c-j"></span></header>
+    <div class="opts" id="lj"></div>
+  </section>
+  <section class="card group lambung" aria-labelledby="t-l">
+    <header><h2 id="t-l">Gejala lambung</h2><span class="count" id="c-l"></span></header>
+    <div class="opts" id="ll"></div>
+  </section>
+  <div class="submit-bar">
+    <div class="inner">
+      <div class="status" role="status" aria-live="polite"><span id="jml">Belum ada gejala dipilih</span><span class="error" id="err"></span></div>
+      <div class="actions">
+        <a class="btn abu" href="identitas.html">Kembali</a>
+        <button class="btn" type="submit">Proses diagnosis</button>
+      </div>
+    </div>
+  </div>
+</form>
+</main>
+<footer id="footer"></footer>
+<script src="js/layout.js"></script><script src="js/data.js"></script>
+<script>
+(function(){
+  if(!sessionStorage.getItem('identitas')){location.href='identitas.html';return}
+  var tersimpan=JSON.parse(sessionStorage.getItem('gejala')||'[]');
+  var f=document.getElementById('f'),jml=document.getElementById('jml'),err=document.getElementById('err');
+  function buat(el,arr,t){
+    el.innerHTML=arr.map(function(g){
+      var k=t+'-'+g[0];
+      return '<label class="cek"><input type="checkbox" name="g" value="'+k+'"'+(tersimpan.indexOf(k)>=0?' checked':'')+'><span>'+g[1]+'</span></label>';
+    }).join('');
+  }
+  buat(document.getElementById('lj'),GEJALA_J,'J');
+  buat(document.getElementById('ll'),GEJALA_L,'L');
+  function dipilih(){return Array.prototype.map.call(f.querySelectorAll('input[name=g]:checked'),function(x){return x.value})}
+  function segarkan(){
+    var d=dipilih(),j=d.filter(function(k){return k[0]==='J'}).length,l=d.length-j;
+    document.getElementById('c-j').textContent=j?j+' dipilih':'';
+    document.getElementById('c-l').textContent=l?l+' dipilih':'';
+    jml.textContent=d.length?d.length+' gejala dipilih':'Belum ada gejala dipilih';
+    if(d.length)err.textContent='';
+  }
+  f.addEventListener('change',segarkan);segarkan();
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var d=dipilih();
+    if(!d.length){err.textContent='Pilih minimal satu gejala.';jml.textContent='';f.querySelector('input[name=g]').focus();return}
+    sessionStorage.setItem('gejala',JSON.stringify(d));
+    location.href='hasil.html';
+  });
+})();
+</script>
+</body>
+</html>

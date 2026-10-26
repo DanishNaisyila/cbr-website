@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beranda - Sistem Pakar CBR Lambung & Jantung</title>
+<meta name="description" content="Sistem pakar berbasis Case-Based Reasoning untuk menelusuri kemungkinan penyakit lambung dan jantung dari gejala yang dialami.">
+<meta name="theme-color" content="#0d5c61">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='10' fill='%230d5c61'/%3E%3Cpath d='M5 19h6l3-7 5 14 4-10 2 3h6' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="header"></header>
+<main>
+<section class="hero" aria-labelledby="judul">
+  <div>
+    <h1 id="judul">Cek kemungkinan penyakit lambung dan jantung dari gejala Anda</h1>
+    <p class="lead">Pilih gejala yang Anda rasakan. Sistem membandingkannya dengan kasus lama pada basis pengetahuan, lalu menampilkan kasus yang paling mirip beserta rincian perhitungannya.</p>
+    <div class="actions">
+      <a class="btn" href="identitas.html?baru">Mulai diagnosis</a>
+      <a class="btn abu" href="dataset.html">Lihat dataset</a>
+    </div>
+  </div>
+  <aside class="calc" aria-labelledby="contoh">
+    <h2 id="contoh">Contoh perhitungan</h2>
+    <dl>
+      <dt>Gejala pada kasus lama</dt><dd>5</dd>
+      <dt>Gejala yang Anda pilih</dt><dd>4</dd>
+      <dt>Gejala yang cocok</dt><dd>3</dd>
+    </dl>
+    <hr class="rule">
+    <div class="score"><span class="eq">3 &divide; max(5, 4) = 3 &divide; 5</span><strong>60%</strong></div>
+    <div class="meter" role="img" aria-label="Kemiripan 60 persen" style="--w:60%"><i></i></div>
+  </aside>
+</section>
+
+<section aria-labelledby="alur">
+  <h2 id="alur">Empat langkah sampai hasil</h2>
+  <ol class="steps">
+    <li>Isi identitas<span>Nama, usia, dan jenis kelamin pasien.</span></li>
+    <li>Pilih gejala<span>Centang semua gejala yang dialami.</span></li>
+    <li>Sistem menghitung<span>Kemiripan dihitung otomatis untuk setiap kasus.</span></li>
+    <li>Baca hasil<span>Lihat kasus teratas dan rincian perhitungan.</span></li>
+  </ol>
+</section>
+
+<section class="two-col" aria-label="Informasi metode">
+  <div class="card">
+    <h2>Rumus kemiripan</h2>
+    <p><code>Nilai = Jml Gejala Cocok / Pembagi</code></p>
+    <p>Pembagi adalah yang terbesar antara jumlah gejala pada kasus dan jumlah gejala yang Anda pilih: <code>Pembagi = max(Jml Gejala Kasus, Jml Gejala Dipilih)</code>.</p>
+  </div>
+  <div class="notice" role="note">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5h.01"/></svg>
+    <div>
+      <p><strong>Alat bantu, bukan diagnosis medis.</strong></p>
+      <p>Hasil hanya menunjukkan kemiripan dengan kasus pada artikel acuan. Konsultasikan keluhan Anda ke dokter.</p>
+    </div>
+  </div>
+</section>
+</main>
+<footer id="footer"></footer>
+<script src="js/layout.js"></script>
+</body>
+</html>

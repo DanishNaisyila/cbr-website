@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Identitas Pasien - Sistem Pakar CBR</title>
+<meta name="description" content="Isi identitas pasien sebelum memilih gejala.">
+<meta name="theme-color" content="#0d5c61">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='10' fill='%230d5c61'/%3E%3Cpath d='M5 19h6l3-7 5 14 4-10 2 3h6' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="header"></header>
+<main>
+<ol id="stepper"></ol>
+<div class="page-head">
+  <h1>Identitas pasien</h1>
+  <p>Data ini hanya tampil di halaman hasil dan tersimpan sementara di browser Anda.</p>
+</div>
+<form id="f" class="card form-narrow" novalidate>
+  <div class="field" id="fn">
+    <label for="nama">Nama</label>
+    <input type="text" id="nama" name="nama" autocomplete="name" maxlength="80" aria-describedby="e-nama" required>
+    <span class="error" id="e-nama" role="alert"></span>
+  </div>
+  <div class="field" id="fu">
+    <label for="usia">Usia (tahun)</label>
+    <input type="number" id="usia" name="usia" inputmode="numeric" min="1" max="120" aria-describedby="h-usia e-usia" required>
+    <span class="hint" id="h-usia">Isi angka 1 sampai 120.</span>
+    <span class="error" id="e-usia" role="alert"></span>
+  </div>
+  <fieldset class="field" id="fj" aria-describedby="e-jk">
+    <legend>Jenis kelamin</legend>
+    <div class="choice-row">
+      <label class="choice"><input type="radio" name="jk" value="Laki-laki"><span class="dot" aria-hidden="true"></span>Laki-laki</label>
+      <label class="choice"><input type="radio" name="jk" value="Perempuan"><span class="dot" aria-hidden="true"></span>Perempuan</label>
+    </div>
+    <span class="error" id="e-jk" role="alert"></span>
+  </fieldset>
+  <div class="actions">
+    <button class="btn" type="submit">Lanjut pilih gejala</button>
+    <a class="btn abu" href="index.html">Batal</a>
+  </div>
+</form>
+</main>
+<footer id="footer"></footer>
+<script src="js/layout.js"></script>
+<script>
+(function(){
+  if(/[?&]baru\b/.test(location.search)){sessionStorage.removeItem('identitas');sessionStorage.removeItem('gejala')}
+  var f=document.getElementById('f');
+  var tersimpan=JSON.parse(sessionStorage.getItem('identitas')||'null');
+  if(tersimpan){
+    f.nama.value=tersimpan.nama||'';f.usia.value=tersimpan.usia||'';
+    Array.prototype.forEach.call(f.jk,function(r){r.checked=(r.value===tersimpan.jk)});
+  }
+  function salah(boxId,errId,msg){
+    var box=document.getElementById(boxId),el=document.getElementById(errId);
+    el.textContent=msg||'';box.classList.toggle('invalid',!!msg);
+    var inp=box.querySelector('input');if(inp&&boxId!=='fj')inp.setAttribute('aria-invalid',msg?'true':'false');
+    return !msg;
+  }
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var nama=f.nama.value.trim(),usia=parseInt(f.usia.value,10),jk=(f.querySelector('input[name=jk]:checked')||{}).value;
+    var a=salah('fn','e-nama',nama?'':'Nama wajib diisi.');
+    var b=salah('fu','e-usia',(usia>=1&&usia<=120)?'':'Usia harus berupa angka 1 sampai 120.');
+    var c=salah('fj','e-jk',jk?'':'Pilih jenis kelamin.');
+    if(!(a&&b&&c)){
+      (!a?f.nama:!b?f.usia:f.querySelector('input[name=jk]')).focus();return;
+    }
+    sessionStorage.setItem('identitas',JSON.stringify({nama:nama,usia:usia,jk:jk}));
+    location.href='gejala.html';
+  });
+})();
+</script>
+</body>
+</html>

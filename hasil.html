@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hasil Diagnosis - Sistem Pakar CBR</title>
+<meta name="description" content="Hasil diagnosis berdasarkan kemiripan gejala dengan kasus pada basis pengetahuan.">
+<meta name="theme-color" content="#0d5c61">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='10' fill='%230d5c61'/%3E%3Cpath d='M5 19h6l3-7 5 14 4-10 2 3h6' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="header"></header>
+<main id="konten">
+<ol id="stepper"></ol>
+<div id="isi"></div>
+</main>
+<footer id="footer"></footer>
+<script src="js/layout.js"></script><script src="js/data.js"></script><script src="js/cbr.js"></script>
+<script>
+(function(){
+  var pasien=JSON.parse(sessionStorage.getItem('identitas')||'null');
+  var dipilih=JSON.parse(sessionStorage.getItem('gejala')||'[]');
+  if(!pasien||!dipilih.length){location.href=pasien?'gejala.html':'identitas.html';return}
+
+  var hasil=hitungCBR(dipilih),teratas=hasil.filter(function(x){return x.teratas});
+  var pct=function(n){return (n*100).toFixed(1).replace('.0','')+'%'};
+  var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')};
+  var cls=function(t){return t==='Jantung'?'jantung':'lambung'};
+  var chip=function(t){return '<span class="chip '+cls(t)+'">'+t+'</span>'};
+
+  var o='<div class="page-head"><h1>Hasil diagnosis</h1><p>Berikut kasus yang paling mirip dengan gejala yang Anda pilih.</p></div>';
+
+  if(!teratas.length){
+    o+='<section class="card empty" aria-labelledby="h-kosong"><h2 id="h-kosong" class="hasil">Belum ada kasus yang cocok</h2><p>Gejala yang Anda pilih tidak sama dengan gejala pada kasus mana pun. Coba tinjau kembali gejala yang dipilih, atau konsultasikan ke dokter.</p></section>';
+  }else{
+    o+=teratas.map(function(x){
+      return '<section class="card result '+cls(x.kasus.tipe)+'" aria-label="Kasus teratas">'+
+        '<div class="top">'+chip(x.kasus.tipe)+'<span class="hint">'+x.jmlCocok+' dari '+x.pembagi+' gejala cocok</span></div>'+
+        '<p class="hasil">'+esc(x.kasus.nama)+'</p>'+
+        '<div class="score-line"><div class="meter" role="img" aria-label="Kemiripan '+pct(x.nilai)+'" style="--w:'+(x.nilai*100)+'%"><i></i></div><strong>'+pct(x.nilai)+'</strong></div></section>';
+    }).join('');
+    if(teratas.length>1)o+='<div class="notice catatan" role="note"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5h.01"/></svg><p>Gejala Anda sama-sama cocok dengan beberapa kemungkinan di atas. Sebaiknya konsultasikan ke dokter.</p></div>';
+  }
+
+  o+='<div class="notice info catatan" role="note"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16.5h.01"/></svg><div><p>Hasil ini bukan diagnosis medis. Jika mengalami nyeri dada berat, sesak napas, pingsan, atau muntah darah, segera cari pertolongan medis darurat.</p></div></div>';
+
+  o+='<section class="card" style="margin-top:var(--s4)" aria-labelledby="h-pasien"><h2 id="h-pasien">Identitas pasien</h2><dl class="facts"><div><dt>Nama</dt><dd>'+esc(pasien.nama)+'</dd></div><div><dt>Usia</dt><dd>'+esc(pasien.usia)+' tahun</dd></div><div><dt>Jenis kelamin</dt><dd>'+esc(pasien.jk)+'</dd></div></dl></section>';
+
+  o+='<section class="card" aria-labelledby="h-gejala"><h2 id="h-gejala">Gejala yang dipilih ('+dipilih.length+')</h2><ul class="symptoms">'+dipilih.map(function(k){return '<li>'+chip(k[0]==='J'?'Jantung':'Lambung')+'<span>'+GEJALA_NAMA[k]+'</span></li>'}).join('')+'</ul></section>';
+
+  o+='<section class="card" aria-labelledby="h-rinci"><h2 id="h-rinci">Rincian perhitungan</h2>'+
+    '<div class="tabel" tabindex="0" role="region" aria-labelledby="h-rinci"><table><caption>Semua kasus diurutkan dari kemiripan tertinggi.</caption>'+
+    '<thead><tr><th scope="col">Kasus</th><th scope="col" class="num">Cocok</th><th scope="col" class="num">Pembagi</th><th scope="col">Nilai kemiripan</th></tr></thead><tbody>'+
+    hasil.map(function(x){
+      return '<tr'+(x.teratas?' class="top"':'')+'><th scope="row">'+esc(x.kasus.nama)+' '+chip(x.kasus.tipe)+'</th>'+
+        '<td class="num">'+x.jmlCocok+'</td><td class="num">'+x.pembagi+'</td>'+
+        '<td><div class="bar"><div class="meter" style="--w:'+(x.nilai*100)+'%"><i></i></div><b>'+pct(x.nilai)+'</b></div></td></tr>';
+    }).join('')+'</tbody></table></div>'+
+    '<details class="cara"><summary>Cara membaca perhitungan</summary><p>Nilai kemiripan = jumlah gejala cocok dibagi pembagi. Pembagi adalah yang terbesar antara jumlah gejala pada kasus dan jumlah gejala yang Anda pilih ('+dipilih.length+' gejala).</p></details></section>';
+
+  o+='<div class="actions"><a class="btn" href="gejala.html">Ubah gejala</a><a class="btn abu" href="identitas.html?baru">Pasien baru</a></div>';
+  document.getElementById('isi').innerHTML=o;
+})();
+</script>
+</body>
+</html>
